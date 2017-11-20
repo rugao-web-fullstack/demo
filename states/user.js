@@ -131,11 +131,15 @@ User.prototype.homeWaite = function (machine, socket, data) {
         case '1':
             console.log("inside mail write");
             socket.write("mail write");
+            machine.state = states.MAIL_WRITE;
+            machine.action = '';
             socket.emit(states.MAIL_WRITE, machine, socket, data);
             break;
         case '2':
             console.log("inside mail write");
             socket.write("mail read");
+            machine.state = states.MAIL_READ;
+            machine.action = '';
             socket.emit(states.MAIL_READ, machine, socket, data);            
             break;
         default:
