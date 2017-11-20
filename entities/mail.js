@@ -15,14 +15,18 @@ Mail.send = function (sender, receiver, title, body) {
     }
     let mail = new Mail(sender, receiver, title, body);
 
-    mails[receiver] = {
+    mails[receiver].push({
         read: false,
         mail: mail
-    };
+    });
 
     let receiverSocket = UserManager.getSocket(receiver)
     receiverSocket.emit(states.MAIL_NEW, sender, mail);
     return true;
 }
+
+Mail.get = function(user) {
+    return mails[user];
+};
 
 exports.Mail = Mail;

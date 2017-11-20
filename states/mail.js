@@ -14,6 +14,10 @@ function Mail(socket) {
         this.stateWrite(machine, socket, data);
     })
 
+    socket.on(states.MAIL_READ, (machine, socket, data) => {
+        this.stateRead(machine, socket, data);
+    })
+
     socket.on(states.MAIL_NEW, (sender, mail) => {
         this.onNewMail(socket, sender, mail);
     })
@@ -84,6 +88,11 @@ Mail.prototype.stateWriteWait = function (machine, socket, data) {
             break;
         case '4':
             this.sendMail(machine, socket, data);
+            break;
+            case 'exit':
+            machine.state = states.USER_LOGIN;
+            machine.action = '';
+            socket.emit(states.USER_LOGIN, machine, socket);
             break;
         default:
             console.log("inside not login wait default");
@@ -172,5 +181,50 @@ Mail.prototype.sendMail = function (machine, socket, data) {
 Mail.prototype.onNewMail = function(socket, sender, mail) {
     socket.write("你有来自<" + sender + ">的一封新邮件！\n");
 };
+
+/**
+ * 邮件读状态下，基本的接收入口
+ * @param {*} machine 
+ * @param {*} socket 
+ * @param {*} data 
+ */
+Mail.prototype.stateRead = function (machine, socket, data) {
+    console.log("state read");
+    if (!machine.action) {
+        console.log("state write home");
+        this.stateReadHome(machine, socket, data);
+    } else {
+        console.log("inside not login else");
+        switch (machine.action) {
+            case 'wait':
+                console.log("inside not login wait");
+                this.stateWriteWait(machine, socket, data);
+                break;
+        }
+    }
+}
+
+Mail.prototype.stateReadHome = function (machine, socket, data) {
+    socket.write('\n请输入你要查看的邮件ID:\n');
+    let user = UserManager.getUserBySocket(socket);
+    console.log("user");
+    console.log(user);
+    if (!user) {
+        socket.write("你尚未登录!");
+        return;
+    }
+    let mails = MailManager.get(user.email);
+    console.log("mails");
+    console.log(mails);
+    
+    if (!mails || mails.length < 1) {
+        socket.write("你邮件列表为空!");
+        return; 
+    }
+    for(let i = 0; i < mails.length; i++) {
+        socket.write("id: " + i + ', 标题: ' + mails[i].mail.title + "\n");
+    }
+    machine.action = 'wait';
+}
 
 exports.Mail = Mail;
