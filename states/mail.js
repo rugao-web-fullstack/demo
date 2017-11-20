@@ -28,6 +28,15 @@ Mail.prototype.stateWrite = function (machine, socket, data) {
     } else {
         console.log("inside not login else");
         switch (machine.action) {
+            case 'address':
+                this.getAddress(machine, socket, data);
+                break;
+            case 'title':
+                this.getTitle(machine, socket, data);
+                break;
+            case 'body':
+                this.getBody(machine, socket, data);
+                break;
             case 'wait':
                 console.log("inside not login wait");
                 this.stateWriteWait(machine, socket, data);
@@ -107,6 +116,12 @@ Mail.prototype.stateWriteTitleWait = function (machine, socket, data) {
 Mail.prototype.stateWriteBodyWait = function (machine, socket, data) {
     socket.write("请输入邮件内容:\n")
     machine.action = 'body';
+};
+
+Mail.prototype.getTitle = function (machine, socket, data) {
+    this.title = machine.getCleanedString(socket, data);
+    socket.write("标题更新成功！当前标题是: " + this.title + "\n")
+    this.stateWriteHome(machine, socket, data);
 };
 
 
