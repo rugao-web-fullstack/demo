@@ -136,4 +136,19 @@ Mail.prototype.getAddress = function (machine, socket, data) {
     this.stateWriteHome(machine, socket, data);
 };
 
+Mail.prototype.getBody = function (machine, socket, data) {
+    let input = machine.getCleanedString(socket, data);
+    if (input === '.exit') {
+        socket.write("正文更新成功！当前正文内容是:\n");
+        for(let i = 0; i < this.body.length; i++) {
+            socket.write(this.body[i] + "\n\r");
+        }
+        socket.write("===正文结束===\n");
+        this.stateWriteHome(machine, socket, data);
+    } else {
+        this.body.push(input);
+    }
+
+};
+
 exports.Mail = Mail;
