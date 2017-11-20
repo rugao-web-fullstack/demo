@@ -30,5 +30,18 @@ User.login = function (socket,
     return user.password === password;
 };
 
+/**
+ * 判断当前地址是不是有用户拥有
+ * @param {*} address 
+ */
+User.isAddress = function(address) {
+    for(var k in users) {
+        if (users[k].user.email === address) {
+            return true;
+        }
+    }
+    return false;
+}
+
 exports.User = User;
 // module.exports.User = User;

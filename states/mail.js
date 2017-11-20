@@ -1,4 +1,5 @@
 let states = require("../states").states;
+const UserManager = require('../entities/user').User;
 
 /**
  * 用于处理邮件与用户的交互
@@ -124,5 +125,15 @@ Mail.prototype.getTitle = function (machine, socket, data) {
     this.stateWriteHome(machine, socket, data);
 };
 
+Mail.prototype.getAddress = function (machine, socket, data) {
+    let address = machine.getCleanedString(socket, data);
+    if (!UserManager.isAddress(address)) {
+        socket.write("地址不存在！请重新输入:\n");
+        return;
+    }
+    this.address = address;
+    socket.write("地址更新成功！当前地址是: " + this.address + "\n")
+    this.stateWriteHome(machine, socket, data);
+};
 
 exports.Mail = Mail;
