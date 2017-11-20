@@ -1,6 +1,6 @@
 let states = require("../states").states;
 const UserManager = require('../entities/user').User;
-
+const MailManager = require('../entities/mail').Mail;
 /**
  * 用于处理邮件与用户的交互
  * @param {*} socket 
@@ -12,6 +12,10 @@ function Mail(socket) {
 
     socket.on(states.MAIL_WRITE, (machine, socket, data) => {
         this.stateWrite(machine, socket, data);
+    })
+
+    socket.on(states.MAIL_NEW, (sender, mail) => {
+        this.onNewMail(socket, sender, mail);
     })
 }
 
@@ -79,6 +83,7 @@ Mail.prototype.stateWriteWait = function (machine, socket, data) {
             this.stateWriteBodyWait(machine, socket, data);
             break;
         case '4':
+            this.sendMail(machine, socket, data);
             break;
         default:
             console.log("inside not login wait default");
@@ -140,7 +145,7 @@ Mail.prototype.getBody = function (machine, socket, data) {
     let input = machine.getCleanedString(socket, data);
     if (input === '.exit') {
         socket.write("正文更新成功！当前正文内容是:\n");
-        for(let i = 0; i < this.body.length; i++) {
+        for (let i = 0; i < this.body.length; i++) {
             socket.write(this.body[i] + "\n\r");
         }
         socket.write("===正文结束===\n");
@@ -149,6 +154,23 @@ Mail.prototype.getBody = function (machine, socket, data) {
         this.body.push(input);
     }
 
+};
+
+
+Mail.prototype.sendMail = function (machine, socket, data) {
+    let user = UserManager.getUserBySocket(socket);
+    if (!MailManager.send(
+        user.email,
+        this.address,
+        this.title,
+        this.body.join("\n\r"))) {
+        return socket.write("发送失败！\n");
+    }
+    return socket.write("邮件发送成功！\n");
+};
+
+Mail.prototype.onNewMail = function(socket, sender, mail) {
+    socket.write("你有来自<" + sender + ">的一封新邮件！\n");
 };
 
 exports.Mail = Mail;
