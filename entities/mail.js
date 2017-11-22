@@ -1,12 +1,16 @@
 let states = require("../states").states;
 const path = require("path");
 const UserManager = require('./user').User;
-const Storage = require("./storage").Storage;
-const FILENAME = "../data/mail.json";
-const storage = new Storage(path.resolve(path.dirname(__filename), FILENAME));
 
-let mails = {
-};
+
+// 创建Storage，也就是加载或者保存的对象
+const FILENAME = "../data/mail.json";
+
+const Storage = require("./storage").Storage;
+const storage = new Storage(
+    path.resolve(
+        path.dirname(__filename), FILENAME));
+//
 
 function Mail(sender, receiver, title, body) {
     this.sender = sender;
@@ -22,6 +26,10 @@ Mail.send = function (sender, receiver, title, body, cb) {
             console.log(error.stack);
             cb(error);
             return;
+        }
+
+        if (!mails) {
+            mails = {};
         }
 
         if (!mails[receiver]) {
