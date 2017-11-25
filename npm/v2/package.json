@@ -1,0 +1,21 @@
+{
+	"name": "abc",
+	"version": "1.0.0",
+	"description": "sosososdosidoossdsd",
+	"main": "main.js",
+	"dependencies": {
+		"lodash": "^4.17.4"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"test": "mocha"
+	},
+	"keywords": [
+		"osos"
+	],
+	"bin": {
+		"aaa": "test.js"
+	},
+	"author": "sosos",
+	"license": "ISC"
+}
